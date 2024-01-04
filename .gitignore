@@ -1,0 +1,84 @@
+# Node.js
+node_modules/
+
+# Dependency directories
+# https://docs.npmjs.com/cli/v7/configuring-npm/package-json#files
+**/npm-debug.log
+**/node_modules
+**/.npm
+**/*.log
+**/*.lock
+**/yarn.lock
+**/package-lock.json
+**/yarn-error.log
+**/build/
+**/dist/
+
+# Editor files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.swn
+*.swo
+*.swp
+*.sublime-workspace
+*.sublime-project
+*.sublime-workspace
+*.sublime-project
+*.komodoproject
+.komodotools/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# User-specific files
+*.cache
+*.log
+*.npmrc
+*.yarnrc
+yarn-debug.log*
+npm-debug.log*
+*.pnp.*
+.pnp.js
+
+# Testing
+coverage/
+*.pid
+*.log
+*.seed
+*.pid.lock
+
+# Typescript
+*.tsbuildinfo
+
+# Webpack
+.DS_Store
+dist/
+
+# Babel
+dist/
+
+# Next.js
+.next/
+out/
+
+# Storybook
+.storybook-out/
+.storybook-static/
+
+# Nuxt.js
+.nuxt/
+dist/
+
+# Jest
+coverage/
+
+# Yarn
+yarn-error.log
+
+# End of file
