@@ -1,0 +1,19 @@
+.blog-img{
+    width: 45vw;
+    height: 40vh;
+}
+.blog-div{
+    margin-left: 15%;
+    width: 80%;
+    
+}
+body{
+    background-color: whitesmoke;
+}
+.light-font{
+    color: rgb(88, 88, 88);
+    font-weight: lighter;
+}
+.content-div{
+    min-height: 50vh;
+}

@@ -31,20 +31,28 @@ app.get("/", async (req, res) => {
 });
 
 // render newpost page
-app.get("/newpost", async (req, res) => {
-    res.render('edit.ejs');
+app.get("/new", async (req, res) => {
+    res.render('edit.ejs',{heading:"New Post", submit:"Create Post"});
 })
+
+//render post page
+app.get("/posts/:id",async(req,res)=>{
+    const result=await axios.get(`${apiUrl}/posts/${req.params.id}`)
+    const post=result.data
+    res.render('postPage.ejs',{post:post})
+})
+
 
 // Create a new post
 app.post("/api/posts", async (req, res) => {
     try {
-        // Include req.file.filename in the data sent to the API
+        
         const postData = {
             ...req.body,
             picture: req.file.filename,
         };
 
-        // Make the POST request to your API with modified data
+        
         await axios.post(`${apiUrl}/posts`, postData);
         res.redirect("/");
     } catch (error) {
@@ -52,6 +60,45 @@ app.post("/api/posts", async (req, res) => {
         res.status(500).json({ message: "Error creating post" });
     }
 });
+
+//render edit page
+app.get("/edit/:id", async (req, res) => {
+    try {
+      const response = await axios.get(`${apiUrl}/posts/${req.params.id}`);
+      
+      res.render("edit.ejs", { post: response.data, heading: "Edit Post", submit: "Update Post" });
+    } catch (error) {
+      console.error("Error fetching post from API:", error);
+      // Check if headers have already been sent before sending an error response
+      if (!res.headersSent) {
+        res.status(500).json({ message: "Error fetching post" });
+      }
+    }
+  });
+  
+  
+
+//update post
+app.post ("/edit/:id", async (req, res) => {
+    try {
+        const postData = {
+            ...req.body,
+            picture: req.file.filename,
+        };
+        await axios.patch(`${apiUrl}/posts/${req.params.id}`, postData);
+        res.redirect("/");
+    } catch (error) {
+        console.error("Error updating post:", error.message);
+        res.status(500).json({ message: "Error updating post" });
+    }
+})
+
+
+//delete post
+app.get("/delete/:id",async (req,res)=>{
+    const result=await axios.delete(`${apiUrl}/posts/${req.params.id}`)
+    res.redirect("/")
+})
 
 app.listen(port, () => {
     console.log(`server is running on port ${port}`);

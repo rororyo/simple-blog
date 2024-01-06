@@ -8,6 +8,7 @@
     <title>Simple Blog</title>
 </head>
 <body style="background-color: whitesmoke;">
+    <%- include('navbar.ejs') %>
     <div class="container">
         <div class="d-flex flex-row mt-3">
             <p id="date" class="mr-2">
@@ -23,8 +24,8 @@
                 <img src="./uploads/<%= posts[0].picture %>" alt="placeholder img">
                 <p class="mt-2" style="color: palevioletred;"><%= posts[0].category %></p>
                 <h3><%= posts[0].title %></h3>
+                <a href="/posts/<%= posts[0].id %>">read more</a>
             </div>
-        
             <div class="col-lg-4 col-sm-2 col-6 ms-5">
                 <div class="row">
                     <% for (let i = 1; i < 5 && i < posts.length; i++) { %>
@@ -32,9 +33,9 @@
                             <img src="./uploads/<%= posts[i].picture %>" alt="placeholder img">
                             <p class="mt-2" style="color: palevioletred;"><%= posts[i].category %></p>
                             <p style="font-weight: bold;"><%= posts[i].title %></p>
+                            <a href="/posts/<%= posts[i].id %>">read more</a>
                         </div>
                     <% } %>
-                    <!-- loop for posts -->
                 </div>
             </div>
         </div>
