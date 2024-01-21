@@ -3,28 +3,28 @@ import express from "express";
 import pg from "pg";
 import bodyParser from "body-parser";
 
-const { Client } = pg;
+import env from "dotenv";
 
+const { Client } = pg;
 
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
-
 app.use(express.static("public"));
-const port = 4000;
 
+const port = 4000;
+env.config();
 const client = new Client({
-  user: "postgres",
-  host: "localhost",
-  database: "Simple Blog",
-  password: "Ryokeren123",
-  port: 5432,
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_DB,
+  password: process.env.DB_PASSWORD,
+  port: process.env.DB_PORT,
 });
 
 await client.connect();
 
-// get request -> display 5 posts
+// GET Routes
 app.get("/posts", async (req, res) => {
   const result = await client.query(
     "SELECT * FROM posts ORDER BY date_created DESC LIMIT 5"
@@ -34,7 +34,6 @@ app.get("/posts", async (req, res) => {
   res.send(posts);
 });
 
-//get request -> get post by id
 app.get("/posts/:id", async (req, res) => {
   const result = await client.query(
     "SELECT * FROM posts WHERE id = $1",
@@ -42,13 +41,14 @@ app.get("/posts/:id", async (req, res) => {
   );
   const post = result.rows[0];
   res.send(post);
-})
+});
 
 
 
-// post new blog
+
+
+// POST Routes
 app.post('/posts', async (req, res) => {
-    
   try {
     const post = {
       category: req.body.category,
@@ -56,9 +56,8 @@ app.post('/posts', async (req, res) => {
       post_content: req.body.post_content,
       author: req.body.author,
       picture: req.body.picture
-    }
+    };
 
-   
     const result = await client.query('INSERT INTO posts(category, title, post_content, author, picture) VALUES($1, $2, $3, $4, $5)',
       [post.category, post.title, post.post_content, post.author, post.picture]);
 
@@ -67,10 +66,10 @@ app.post('/posts', async (req, res) => {
     console.error(error);
     res.status(500).send('Internal Server Error');
   }
-
 });
 
-//edit post
+
+// PATCH Route
 app.patch('/posts/:id', async (req, res) => {
   try {
     const postId = req.params.id;
@@ -88,10 +87,9 @@ app.patch('/posts/:id', async (req, res) => {
     console.error(error);
     res.status(500).send('Internal Server Error');
   }
-})
+});
 
-
-//delete post
+// DELETE Route
 app.delete('/posts/:id', async (req, res) => {
   try {
     const postId = req.params.id;
@@ -104,6 +102,8 @@ app.delete('/posts/:id', async (req, res) => {
 });
 
 
+
+// Server Start
 app.listen(port, () => {
-  console.log(`api is running on port ${port}`);
+  console.log(`API is running on port ${port}`);
 });

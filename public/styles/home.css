@@ -6,3 +6,6 @@
     height: 50%;
     width: 100%;
 }
+.posts *{
+    font-size: 1vw;
+}
