@@ -5,7 +5,8 @@ import multer from "multer";
 import bodyParser from "body-parser";
 import env from "dotenv";
 import authApp from "./auth.js";
-
+import cookieParser from "cookie-parser";
+import jwt from "jsonwebtoken";
 const storage = multer.diskStorage({
     destination: "./public/uploads/",
     filename: (req, file, cb) => {
@@ -17,34 +18,59 @@ const upload = multer({ storage: storage });
 const port = 3000;
 const apiUrl = "http://localhost:4000";
 const ensureAuthenticated = (req, res, next) => {
-  if (req.isAuthenticated()) {
-    return next(); 
+  if (req.cookies.token) {
+    jwt.verify(req.cookies.token, process.env.JWT_SECRET, (err, user) => {
+      if (err) {
+        res.redirect("/login");
+      } else {
+        req.user = user;
+        next();
+      }
+    });
+  } else {
+    res.redirect("/login");
   }
-  res.redirect("/login"); 
 };
 
+const isAdmin = (req, res, next) => {
+  const decoded= jwt.verify(req.cookies.token,process.env.JWT_SECRET)
+  const userRole=decoded.user.role
+  if(String(userRole)=="admin"){
+   next()
+  }
+  else{
+    res.redirect("/")
+  }
+}
 env.config();
 
-//middleware
+// Middleware order is important
 app.use(express.static("public"));
+app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(upload.single("picture"));
-app.use(authApp)
+app.use(authApp);
 
-//GET//
-// render homepage
-app.get("/",ensureAuthenticated,async (req, res) => {
-    try {
-        const result = await axios.get(`${apiUrl}/posts`);
-        const posts = result.data;
-        res.render("home.ejs", { posts: posts , user: req.user});
-    } catch (error) {
-      console.error("Error fetching authentication status:", error);
-      res.status(500).send("Internal Server Error");
-    }
-  });
-  
+// GET //
+// Protect the homepage route
+app.get("/", ensureAuthenticated, async (req, res) => {
+  try {
+    const result = await axios.get(`${apiUrl}/posts`);
+    const posts = result.data;
+    res.render("home.ejs", { posts: posts, user: req.user });
+  } catch (error) {
+    console.error("Error fetching authentication status:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+//render admin dashboard
+app.get("/admin-dashboard",isAdmin,async (req,res)=>{
+const result= await axios.get(apiUrl+"/users")
+res.render("admindash.ejs",{users:result.data})
+})
+
 
 // render newpost page
 app.get("/new", async (req, res) => {

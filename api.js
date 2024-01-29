@@ -1,11 +1,8 @@
 // imports
 import express from "express";
-import pg from "pg";
 import bodyParser from "body-parser";
-
 import env from "dotenv";
-
-const { Client } = pg;
+import { dbMiddleware } from "./dbsetup.js";  // Import the dbMiddleware
 
 const app = express();
 app.use(bodyParser.json());
@@ -14,41 +11,44 @@ app.use(express.static("public"));
 
 const port = 4000;
 env.config();
-const client = new Client({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_DB,
-  password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT,
-});
 
-await client.connect();
+// Add the dbMiddleware to the middleware stack
+app.use(dbMiddleware);
 
 // GET Routes
 app.get("/posts", async (req, res) => {
-  const result = await client.query(
-    "SELECT * FROM posts ORDER BY date_created DESC LIMIT 5"
-  );
+  const client = req.dbClient;  // Access the database client from req object
+  try {
+    const result = await client.query(
+      "SELECT * FROM posts ORDER BY date_created DESC LIMIT 5"
+    );
 
-  const posts = result.rows;
-  res.send(posts);
+    const posts = result.rows;
+    res.send(posts);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
 });
 
 app.get("/posts/:id", async (req, res) => {
-  const result = await client.query(
-    "SELECT * FROM posts WHERE id = $1",
-    [req.params.id]
-  );
-  const post = result.rows[0];
-  res.send(post);
+  const client = req.dbClient;  // Access the database client from req object
+  try {
+    const result = await client.query(
+      "SELECT * FROM posts WHERE id = $1",
+      [req.params.id]
+    );
+    const post = result.rows[0];
+    res.send(post);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
 });
-
-
-
-
 
 // POST Routes
 app.post('/posts', async (req, res) => {
+  const client = req.dbClient;  // Access the database client from req object
   try {
     const post = {
       category: req.body.category,
@@ -68,9 +68,9 @@ app.post('/posts', async (req, res) => {
   }
 });
 
-
 // PATCH Route
 app.patch('/posts/:id', async (req, res) => {
+  const client = req.dbClient;  // Access the database client from req object
   try {
     const postId = req.params.id;
     const post = {
@@ -91,6 +91,7 @@ app.patch('/posts/:id', async (req, res) => {
 
 // DELETE Route
 app.delete('/posts/:id', async (req, res) => {
+  const client = req.dbClient;  // Access the database client from req object
   try {
     const postId = req.params.id;
     await client.query('DELETE FROM posts WHERE id = $1', [postId]);
@@ -101,6 +102,18 @@ app.delete('/posts/:id', async (req, res) => {
   }
 });
 
+//get all users
+app.get("/users", async (req, res) => {
+  const client = req.dbClient;  // Access the database client from req object
+  try {
+    const result = await client.query("SELECT email,role FROM users");
+    const users = result.rows;
+    res.send(users);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 
 // Server Start
