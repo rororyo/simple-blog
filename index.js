@@ -58,7 +58,8 @@ app.get("/", ensureAuthenticated, async (req, res) => {
   try {
     const result = await axios.get(`${apiUrl}/posts`);
     const posts = result.data;
-    res.render("home.ejs", { posts: posts, user: req.user });
+    const userRole=jwt.verify(req.cookies.token,process.env.JWT_SECRET).user.role
+    res.render("home.ejs", { posts: posts, user: req.user,isAdmin:userRole=="admin" });
   } catch (error) {
     console.error("Error fetching authentication status:", error);
     res.status(500).send("Internal Server Error");
@@ -71,6 +72,12 @@ const result= await axios.get(apiUrl+"/users")
 res.render("admindash.ejs",{users:result.data})
 })
 
+//render admin dashboard posts
+app.get("/admin-dashboard-posts",isAdmin,async (req,res)=>{
+  const result = await axios.get(`${apiUrl}/allposts`);
+  const posts = result.data;
+  res.render("admindash-posts.ejs", { posts: posts });
+})
 
 // render newpost page
 app.get("/new", async (req, res) => {

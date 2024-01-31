@@ -31,6 +31,20 @@ app.get("/posts", async (req, res) => {
   }
 });
 
+app.get("/allposts", async (req, res) => {
+  const client = req.dbClient;  // Access the database client from req object
+  try {
+    const result = await client.query(
+      "SELECT * FROM posts ORDER BY date_created DESC"
+
+    );
+    res.send(result.rows);
+    }
+    catch (error) {
+      console.error(error);
+      res.status(500).send('Internal Server Error');
+    }
+})
 app.get("/posts/:id", async (req, res) => {
   const client = req.dbClient;  // Access the database client from req object
   try {

@@ -64,10 +64,10 @@ authApp.post("/login", async (req, res) => {
                 res.cookie("token", token);
                 res.redirect("/");
             } else {
-                res.status(401).json({ message: "Invalid credentials" });
+                res.render("login.ejs", { error: "Invalid credentials" });
             }
         } else {
-            res.status(401).json({ message: "Invalid credentials" });
+            res.render("login.ejs", { error: "Invalid credentials" });
         }
     } catch (err) {
         console.error('Error in login:', err);

@@ -11,6 +11,11 @@
           <!-- Makes POST request to /login route -->
           <form action="/login" method="POST">
             <div class="form-group">
+              <% if (locals.error) { %>
+                <div class="alert alert-danger">
+                  Wrong Password
+                </div>
+              <% } %>
               <label for="email">Email</label>
               <input type="email" class="form-control" name="username">
             </div>
