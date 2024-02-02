@@ -1,4 +1,4 @@
-//imports
+// imports
 import express from "express";
 import axios from "axios";
 import multer from "multer";
@@ -7,16 +7,21 @@ import env from "dotenv";
 import authApp from "./auth.js";
 import cookieParser from "cookie-parser";
 import jwt from "jsonwebtoken";
+
+
 const storage = multer.diskStorage({
-    destination: "./public/uploads/",
-    filename: (req, file, cb) => {
-      cb(null, file.fieldname + "-" + Date.now() + file.originalname);
-    },
-  });
+  destination: "./public/uploads/",
+  filename: (req, file, cb) => {
+    cb(null, file.fieldname + "-" + Date.now() + file.originalname);
+  },
+});
+
 const app = express();
 const upload = multer({ storage: storage });
 const port = 3000;
 const apiUrl = "http://localhost:4000";
+const saltRounds = 10;
+
 const ensureAuthenticated = (req, res, next) => {
   if (req.cookies.token) {
     jwt.verify(req.cookies.token, process.env.JWT_SECRET, (err, user) => {
@@ -33,15 +38,21 @@ const ensureAuthenticated = (req, res, next) => {
 };
 
 const isAdmin = (req, res, next) => {
-  const decoded= jwt.verify(req.cookies.token,process.env.JWT_SECRET)
-  const userRole=decoded.user.role
-  if(String(userRole)=="admin"){
-   next()
+  const decoded = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
+  const userRole = decoded.user.role;
+  if (String(userRole) === "admin") {
+    next();
+  } else {
+    res.redirect("/");
   }
-  else{
-    res.redirect("/")
-  }
-}
+};
+
+const checkRole = (req, res, next) => {
+  const decoded = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
+  const userRole = decoded.user.role;
+  return userRole;
+};
+
 env.config();
 
 // Middleware order is important
@@ -57,49 +68,58 @@ app.use(authApp);
 app.get("/", ensureAuthenticated, async (req, res) => {
   try {
     const result = await axios.get(`${apiUrl}/posts`);
-    const posts = result.data;
-    const userRole=jwt.verify(req.cookies.token,process.env.JWT_SECRET).user.role
-    res.render("home.ejs", { posts: posts, user: req.user,isAdmin:userRole=="admin" });
+
+    
+    const userRole = checkRole(req, res);
+
+    res.render("home.ejs", { posts: result.data, user: req.user, isAdmin: userRole == "admin" });
   } catch (error) {
     console.error("Error fetching authentication status:", error);
     res.status(500).send("Internal Server Error");
   }
 });
 
-//render admin dashboard
-app.get("/admin-dashboard",isAdmin,async (req,res)=>{
-const result= await axios.get(apiUrl+"/users")
-res.render("admindash.ejs",{users:result.data})
-})
+// render admin dashboard
+app.get("/admin-dashboard", isAdmin, async (req, res) => {
+  const result = await axios.get(apiUrl + "/users");
+  const userRole = checkRole(req, res);
+  res.render("admindash.ejs", { users: result.data, isAdmin: userRole == "admin" });
+});
 
-//render admin dashboard posts
-app.get("/admin-dashboard-posts",isAdmin,async (req,res)=>{
+// render admin dashboard posts
+app.get("/admin-dashboard-posts", isAdmin, async (req, res) => {
   const result = await axios.get(`${apiUrl}/allposts`);
   const posts = result.data;
-  res.render("admindash-posts.ejs", { posts: posts });
-})
+  const userRole = checkRole(req, res);
+  res.render("admindash-posts.ejs", { posts: posts, isAdmin: userRole == "admin" });
+});
 
 // render newpost page
 app.get("/new", async (req, res) => {
-  res.render("edit.ejs", { heading: "New Post", submit: "Create Post" });
+  const userRole = checkRole(req, res);
+  res.render("edit.ejs", { heading: "New Post", submit: "Create Post", isAdmin: userRole == "admin" });
 });
 
-//render post page
+// render post page
 app.get("/posts/:id", async (req, res) => {
   const result = await axios.get(`${apiUrl}/posts/${req.params.id}`);
   const post = result.data;
-  res.render("postPage.ejs", { post: post });
+  const userRole = checkRole(req, res);
+  res.render("postPage.ejs", { post: post, isAdmin: userRole == "admin" });
 });
 
-//render edit page
+// render edit page
 app.get("/edit/:id", async (req, res) => {
+  
   try {
+    const userRole = checkRole(req, res);
     const response = await axios.get(`${apiUrl}/posts/${req.params.id}`);
 
     res.render("edit.ejs", {
       post: response.data,
       heading: "Edit Post",
       submit: "Update Post",
+      isAdmin: userRole == "admin",
     });
   } catch (error) {
     console.error("Error fetching post from API:", error);
@@ -110,26 +130,23 @@ app.get("/edit/:id", async (req, res) => {
   }
 });
 
-//delete post
+// delete post
 app.get("/delete/:id", async (req, res) => {
   const result = await axios.delete(`${apiUrl}/posts/${req.params.id}`);
-  res.redirect("/");
+  res.redirect("/admin-dashboard-posts");
 });
 
-//render register page
-app.get("/register",(req,res)=>{
-    res.render("register.ejs");
-})
+// render register page
+app.get("/register", (req, res) => {
+  res.render("register.ejs");
+});
 
+// render login page
+app.get("/login", (req, res) => {
+  res.render("login.ejs");
+});
 
-//render login page
-app.get("/login",(req,res)=>{
-    res.render("login.ejs")
-})
-
-
-
-//POSTS//
+// POSTS //
 // Create a new post
 app.post("/api/posts", async (req, res) => {
   try {
@@ -146,7 +163,7 @@ app.post("/api/posts", async (req, res) => {
   }
 });
 
-//update post
+// update post
 app.post("/edit/:id", async (req, res) => {
   try {
     const postData = {
@@ -161,23 +178,48 @@ app.post("/edit/:id", async (req, res) => {
   }
 });
 
-app.post("/register",async (req,res)=>{
-    try{
+app.post("/register", async (req, res) => {
+  try {
     const email = req.body.username;
     const password = req.body.password;
-    const result=await axios.post(`${apiUrl}/register`,{
-        username:email,
-        password:password
-    })
-    }
-    catch(err){
-        console.log(err)
-    }
-    res.redirect("/")
+    const result = await axios.post(`${apiUrl}/register`, {
+      username: email,
+      password: password,
+    });
+  } catch (err) {
+    console.log(err);
+  }
+  res.redirect("/");
+});
 
+app.post("/edit-user/:id", async (req, res) => {
+  try {
+    const id=req.params.id
+    const email = req.body.email;
+    const password = req.body.password;
+    const result = await axios.patch(`${apiUrl}/users/${id}`, {
+      email: email,
+      password: password,
+      role: req.body.role
+    });
+  } catch (err) {
+    console.log(err);
+  }
+  res.redirect("/admin-dashboard");
+});
+
+//delete user from admin dashboard
+app.get("/delete-user/:id",isAdmin, async (req, res) => {
+  const result = await axios.delete(`${apiUrl}/users/${req.params.id}`);
+  res.redirect("/admin-dashboard");
+});
+
+//render edit user page
+app.get("/edit-user/:id",isAdmin, async (req, res) => {
+  const result = await axios.get(`${apiUrl}/get-user/${req.params.id}`);
+  const userRole = checkRole(req, res);
+  res.render("edit-user.ejs", { user: result.data, isAdmin: userRole == "admin" });
 })
-
-
 
 app.listen(port, () => {
   console.log(`server is running on port ${port}`);

@@ -34,15 +34,16 @@ authApp.post("/register", async (req, res) => {
             res.status(400).send("User already exists");
         } else {
             const hash = await bcrypt.hash(password, saltRounds);
-            const result = await client.query("INSERT INTO users(email,username, password) VALUES($1, $2,$3) RETURNING *", [email,username, hash]);
+            const result = await client.query("INSERT INTO users(email,password) VALUES($1, $2) RETURNING *", [username,hash]);
             const user = result.rows[0];
+            console.log(user.role)
             const token = generateToken(user);
             res.cookie("token", token);
-            res.status(200).send({ user, token });
+            res.redirect("/");
         }
     } catch (err) {
         console.error('Error in registration:', err);
-        res.status(500).send(err.message);
+        res.render("login.ejs", { error: err.message });
     }
 });
 
@@ -79,8 +80,9 @@ authApp.get("/logout", (req, res) => {
     if (isLoggedin(req)) {
 
         res.clearCookie("token");
+       
     }
-    res.redirect("/login")
+    res.redirect("/login");
 });
 
 // Helper function to generate JWT
