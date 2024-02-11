@@ -14,7 +14,13 @@
         </h1>
         <% if (locals.post){ %>
           <form id="editPostForm" method="post" action="/edit/<%= post.id%>" class="d-flex flex-column" enctype="multipart/form-data">
-            <input type="text" name="category" value="<%= post.category%>" required>
+            <label for="category">Category:</label>
+            <select name="category" id="category" required>
+              <% categories.forEach(category => { %>
+                <option value="<%= category.category_name %>" <%= category.category_name == post.category_name ? 'selected' : '' %>><%= category.category_name %></option>
+              <% }); %>
+            </select>
+                   
             <input type="text" name="title" value="<%= post.title%>" required>
             <textarea name="post_content" placeholder="<%= post.post_content%>" required rows="10"></textarea>
             <input type="text" name="author" value="<%= post.author%>" required>
@@ -28,7 +34,15 @@
         <% } else{%>
        
         <form id="newPostForm" method="post" action="/api/posts" class="d-flex flex-column" enctype="multipart/form-data">
-            <input type="text" name="category" placeholder="Category" required>
+          <label for="category">Category:</label>
+
+
+<select name="category" id="category" required>
+  <% categories.forEach(category => { %>
+    <option value="<%= category.id %>"><%= category.category_name %></option>
+  <% }); %>
+</select>
+
             <input type="text" name="title" placeholder="Title" required>
             <textarea name="post_content" placeholder="Content" required rows="10"></textarea>
             <input type="text" name="author" placeholder="Author" required>

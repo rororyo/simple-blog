@@ -10,8 +10,8 @@
 <body style="background-color: whitesmoke;">
     <%- include('navbar.ejs') %>  
     <a href="/admin-dashboard">User list</a>
-    <div class="d-flex justify-content-center align-items-center vh-100 flex-column">
-        <h1>User Posts</h1>
+    <div class="d-flex mt-5 align-items-center vh-100 flex-column">
+        <h1>Simple Blog Posts</h1>
         <a href="/new" class="btn btn-success vw-100">Add a post</a>
         <table class="table table-striped table-bordered table-hover table-responsive">
             <thead>
@@ -29,7 +29,7 @@
                 <% for (let i = 0; i < posts.length; i++) { %>
                     <tr>
                         <th scope="row"><%= i + 1 %></th>
-                        <td><%= posts[i].category %></td>
+                        <td><%= posts[i].category_name%></td>
                         <td><%= posts[i].title %></td>
                         <td ><img src="./uploads/<%= posts[i].picture %>" alt="article image" class="table-img"></td>
                         <td><%= posts[i].author %></td>

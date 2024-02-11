@@ -14,16 +14,21 @@
       <div class="col-sm-8">
         <div class="card">
           <div class="card-body">
-  
+            <% if (locals.error) { %>
+              <div class="alert alert-danger d-flex justify-content-between align-items-center">
+               <%= locals.error %>
+               <button type="button" class="btn-close" aria-label="Close" onclick="this.parentElement.remove();"></button>
+              </div>
+            <% } %>
             <!-- Makes POST request to /login route -->
             <form action="/login" method="POST">
               <div class="form-group">
                 <label for="email">Email</label>
-                <input type="email" class="form-control" name="username">
+                <input type="email" class="form-control" name="username" required>
               </div>
               <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" class="form-control" name="password">
+                <input type="password" class="form-control" name="password" required>
               </div>
               <button type="submit" class="btn btn-dark">Login</button>
             </form>
@@ -31,11 +36,7 @@
           </div>
         </div>
       </div>
-      <% if (locals.error) { %>
-        <div class="alert alert-danger">
-         <%= locals.error %>
-        </div>
-      <% } %>
+
       <!-- <div class="col-sm-4">
         <div class="card">
           <div class="card-body">

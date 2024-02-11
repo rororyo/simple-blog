@@ -22,21 +22,20 @@ export const isLoggedin = (req) => {
 }
 
 authApp.post("/register", async (req, res) => {
-    const email = req.body.email;
     const username=req.body.username
     const password = req.body.password;
     const client = req.dbClient;
+    
 
     try {
-        const checkResult = await client.query("SELECT * FROM users WHERE email = $1", [email]);
+        const checkResult = await client.query("SELECT * FROM users WHERE email = $1", [username]);
 
         if (checkResult.rows.length > 0) {
-            res.status(400).send("User already exists");
+            res.render("register.ejs", { error: "Email already exists" });
         } else {
             const hash = await bcrypt.hash(password, saltRounds);
             const result = await client.query("INSERT INTO users(email,password) VALUES($1, $2) RETURNING *", [username,hash]);
             const user = result.rows[0];
-            console.log(user.role)
             const token = generateToken(user);
             res.cookie("token", token);
             res.redirect("/");
@@ -71,8 +70,7 @@ authApp.post("/login", async (req, res) => {
             res.render("login.ejs", { error: "Invalid credentials" });
         }
     } catch (err) {
-        console.error('Error in login:', err);
-        res.status(500).send(err.message);
+       res.render("login.ejs", { error: err.message });
     }
 });
 

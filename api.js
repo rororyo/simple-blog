@@ -21,7 +21,7 @@ app.get("/posts", async (req, res) => {
   const client = req.dbClient;  // Access the database client from req object
   try {
     const result = await client.query(
-      "SELECT * FROM posts ORDER BY date_created DESC LIMIT 5"
+      "select p.id,c.category_name,p.title,p.picture,p.post_content,p.author,p.date_created from posts p join category c on c.id=p.category_id ORDER BY p.date_created DESC LIMIT 5;"
     );
 
     const posts = result.rows;
@@ -36,8 +36,7 @@ app.get("/allposts", async (req, res) => {
   const client = req.dbClient;  // Access the database client from req object
   try {
     const result = await client.query(
-      "SELECT * FROM posts ORDER BY date_created DESC"
-
+      "SELECT p.id, c.category_name, p.title, p.picture, p.post_content, p.author, p.date_created FROM posts p JOIN category c ON c.id = p.category_id ORDER BY p.date_created DESC;"
     );
     res.send(result.rows);
     }
@@ -50,7 +49,7 @@ app.get("/posts/:id", async (req, res) => {
   const client = req.dbClient;  // Access the database client from req object
   try {
     const result = await client.query(
-      "SELECT * FROM posts WHERE id = $1",
+      "select p.id,c.category_name,p.title,p.picture,p.post_content,p.author,p.date_created from posts p join category c on c.id=p.category_id where p.id=$1",
       [req.params.id]
     );
     const post = result.rows[0];
@@ -73,6 +72,42 @@ app.get("/get-user/:id", async (req, res) => {
   }
 })
 
+app.get("/categories", async (req, res) => {
+  const client = req.dbClient;  // Access the database client from req object
+  try {
+    const result = await client.query("SELECT * from category");
+    const category = result.rows;
+    res.send(category);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.get("/categories-count",async (req,res)=>{
+  const client = req.dbClient
+  try {
+    const result = await client.query("SELECT p.category_id, c.category_name, COUNT(*) as category_amount FROM posts p JOIN category c ON c.id = p.category_id GROUP BY p.category_id, c.category_name;");
+    const category = result.rows;
+    res.send(category);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+})
+
+app.get("/api/categories/:name", async (req, res) => {
+  const client = req.dbClient;
+try{
+  const result= await client.query("select p.id,c.category_name,p.title,p.picture,p.post_content,p.author,p.date_created from posts p join category c on c.id= p.category_id where c.category_name=$1",[req.params.name]);
+  res.send(result.rows)
+  
+}
+catch(err){
+  console.log(err)
+}
+});
+
 // POST Routes
 app.post('/posts', async (req, res) => {
   const client = req.dbClient;  // Access the database client from req object
@@ -85,7 +120,7 @@ app.post('/posts', async (req, res) => {
       picture: req.body.picture
     };
 
-    const result = await client.query('INSERT INTO posts(category, title, post_content, author, picture) VALUES($1, $2, $3, $4, $5)',
+    const result = await client.query('INSERT INTO posts(category_id, title, post_content, author, picture) VALUES($1, $2, $3, $4, $5)',
       [post.category, post.title, post.post_content, post.author, post.picture]);
 
     res.status(200).send('Post added successfully.');
@@ -109,7 +144,7 @@ app.patch('/posts/:id', async (req, res) => {
       author: req.body.author,
       picture: req.body.picture
     };
-    await client.query('UPDATE posts SET category = $1, title = $2, post_content = $3, author = $4, picture = $5 WHERE id = $6',
+    await client.query('UPDATE posts SET category_id = $1, title = $2, post_content = $3, author = $4, picture = $5 WHERE id = $6',
       [post.category, post.title, post.post_content, post.author, post.picture, postId]);
     res.status(200).send('Post updated successfully.');
   } catch (error) {
