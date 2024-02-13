@@ -1,7 +1,10 @@
-.blog-img{
-    width: 45vw;
-    height: 40vh;
+.blog-img {
+    max-width: 100%; /* Ensure the image doesn't exceed its container's width */
+    max-height: 35vh; /* Set a maximum height for the image */
+    width: auto; /* Let the browser calculate the width based on the max-height and aspect ratio */
+    height: auto; /* Let the browser calculate the height based on the max-width and aspect ratio */
 }
+
 .blog-div{
     margin-left: 15%;
     width: 80%;

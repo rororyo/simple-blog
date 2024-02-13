@@ -188,6 +188,7 @@ app.get("/login", (req, res) => {
   res.render("login.ejs");
 });
 
+
 // POSTS //
 // Create a new post
 app.post("/api/posts", async (req, res) => {

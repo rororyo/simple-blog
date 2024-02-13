@@ -199,6 +199,8 @@ app.get("/users", async (req, res) => {
   }
 });
 
+
+
 //delete a user
 app.delete("/users/:id", async (req, res) => {
   const client = req.dbClient;  // Access the database client from req object

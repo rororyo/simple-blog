@@ -57,7 +57,7 @@
               <p class="mt-2" style="color: palevioletred">
                 <%= posts[i].category_name %>
               </p>
-              <p style="font-weight: bold"><%= posts[i].title %></p>
+              <p style="font-weight: bold"><%= posts[i].title.substring(0, 16) + (posts[i].title.length > 16 ? "..." : "") %></p>
               <a href="/posts/<%= posts[i].id %>">read more</a>
             </div>
             <% } %>
