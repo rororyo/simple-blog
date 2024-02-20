@@ -4,5 +4,6 @@
 }
 
 .login-btn{
-  margin-left: 65%;  
+  position: absolute;
+  right: 10%
 }

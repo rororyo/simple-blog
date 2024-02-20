@@ -3,9 +3,11 @@
     width: 100%;
 }
 .posts img{
-    height: 50%;
     width: 100%;
+    height: 100%;
+    max-width: 16vw;
+    max-height: 17vh;
 }
 .posts *{
-    font-size: 1vw;
+    font-size: 1rem;
 }

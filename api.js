@@ -52,6 +52,7 @@ app.get("/posts/:id", async (req, res) => {
       "select p.id,c.category_name,p.title,p.picture,p.post_content,p.author,p.date_created from posts p join category c on c.id=p.category_id where p.id=$1",
       [req.params.id]
     );
+    
     const post = result.rows[0];
     res.send(post);
   } catch (error) {

@@ -1,4 +1,6 @@
 // imports
+
+//TODO: implement pagination
 import express from "express";
 import axios from "axios";
 import multer from "multer";
@@ -121,8 +123,6 @@ app.get("/category/:name",ensureAuthenticated, async (req, res) => {
   try{
    const category_name=req.params.name
     const result=await axios.get(`${apiUrl}/api/categories/${category_name}`)
-    
-  
     res.render("categorypage.ejs",{posts:result.data,category_name:category_name});
   }
   catch(err){
