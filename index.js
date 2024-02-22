@@ -74,11 +74,25 @@ app.get("/admin-dashboard", isAdmin, async (req, res) => {
 
 // render admin dashboard posts
 app.get("/admin-dashboard-posts", isAdmin, async (req, res) => {
-  const result = await axios.get(`${apiUrl}/allposts`);
+  var totalDatas=await axios.get(`${apiUrl}/posts-count`);
+  var totalPage= Math.ceil(parseInt(totalDatas.data[0].count) / 10);
+  const result = await axios.get(`${apiUrl}/allposts/1`);
   const posts = result.data;
   const userRole = checkRole(req, res);
-  res.render("admindash-posts.ejs", { posts: posts, isAdmin: userRole == "admin" });
+  res.render("admindash-posts.ejs", { posts: posts, isAdmin: userRole == "admin" ,totalPages:totalPage,currentPage:1});
 });
+
+//admin dashboard posts pagination
+app.get("/admin-dashboard-posts/:page", isAdmin, async (req, res) => {
+  const page = parseInt(req.params.page);
+  var totalDatas=await axios.get(`${apiUrl}/posts-count`);
+  var totalPage= Math.ceil(parseInt(totalDatas.data[0].count) / 10);
+  const result = await axios.get(`${apiUrl}/allposts/${page}`);
+  const posts = result.data;
+  const userRole = checkRole(req, res);
+  res.json({ posts: posts, isAdmin: userRole == "admin",currentPage:page,totalPages:totalPage}) 
+});
+
 
 // delete user from admin dashboard
 app.get("/delete-user/:id", isAdmin, async (req, res) => {
@@ -187,6 +201,8 @@ app.get("/register", (req, res) => {
 app.get("/login", (req, res) => {
   res.render("login.ejs");
 });
+
+
 
 
 // POSTS //

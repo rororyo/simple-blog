@@ -32,12 +32,16 @@ app.get("/posts", async (req, res) => {
   }
 });
 
-app.get("/allposts", async (req, res) => {
-  const client = req.dbClient;  // Access the database client from req object
+app.get("/allposts/:page", async (req, res) => {
+  var page = parseInt(req.params.page);
+  var displayData = (page - 1) * 10; 
+  const client = req.dbClient;  
   try {
     const result = await client.query(
-      "SELECT p.id, c.category_name, p.title, p.picture, p.post_content, p.author, p.date_created FROM posts p JOIN category c ON c.id = p.category_id ORDER BY p.date_created DESC;"
+      "SELECT p.id, c.category_name, p.title, p.picture, p.post_content, p.author, p.date_created FROM posts p JOIN category c ON c.id = p.category_id ORDER BY p.date_created DESC LIMIT 10 OFFSET $1;",
+      [displayData]
     );
+    
     res.send(result.rows);
     }
     catch (error) {
@@ -45,6 +49,20 @@ app.get("/allposts", async (req, res) => {
       res.status(500).send('Internal Server Error');
     }
 })
+
+//api for sending number of posts data in the db
+app.get("/posts-count", async (req, res) => {
+  const client = req.dbClient;
+  try {
+    const result= await client.query("select count(*) from posts");
+    res.send(result.rows)
+  }
+  catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+})
+
 app.get("/posts/:id", async (req, res) => {
   const client = req.dbClient;  // Access the database client from req object
   try {
