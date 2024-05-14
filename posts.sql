@@ -7,3 +7,16 @@ create table posts(
 	author text,
 	date_created timestamp default current_timestamp
 );
+
+create table category (
+	id serial primary key,
+	category_name text
+)
+
+create table users(
+	id serial primary key,
+	email text,
+	password text,
+	role text,
+)
+

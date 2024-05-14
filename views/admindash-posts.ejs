@@ -82,11 +82,8 @@
             url: "http://localhost:3000/admin-dashboard-posts/" + page,
             type: "GET",
             success: function (data) {
-              // Update table body with new posts
-              // Update table body with new posts
               var tableBody = "";
               for (var i = 0; i < data.posts.length; i++) {
-                // Access data.posts instead of data
                 tableBody += "<tr>";
                 tableBody += '<th scope="row">' + (i + 1) + "</th>";
                 tableBody += "<td>" + data.posts[i].category_name + "</td>";
@@ -115,21 +112,21 @@
           });
         }
 
-        // Pagination link click event handler
+
         $(".pagination a").on("click", function (event) {
   event.preventDefault();
 
-  // Remove active class from all pagination links
+
   $(".pagination li").removeClass("active");
 
-  // Set active class to the clicked pagination link's parent li
+
   $(this).parent().addClass("active");
 
   var page = $(this).attr("href").split("/").pop();
   loadPosts(page);
 });
       });
-      // Update pagination links
+      
 
 
     </script>
