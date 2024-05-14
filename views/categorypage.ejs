@@ -22,10 +22,9 @@
             </span>
         </div>
         
-        
         <div class="row mt-3" id="searchResults">
             <% posts.forEach(post => { %>
-            <div class="col-xl-3 col-lg-4 col-12 d-flex justify-content-center">
+            <div class="col-xl-3 col-lg-4 col-12 d-flex justify-content-center card-wrapper">
                 <div class="card mb-3 position-relative" style="width: 250px; height: 500px;">
                     <img src="/uploads/<%= post.picture %>" alt="placeholder img" class="post-img">
                     <div class="card-body cat-card">
@@ -48,13 +47,13 @@
             input = document.getElementById("myInput");
             filter = input.value.toUpperCase();
             cardContainer = document.getElementById("searchResults");
-            cards = cardContainer.getElementsByClassName("col-md-3");
+            cards = cardContainer.getElementsByClassName("card-wrapper");
             for (i = 0; i < cards.length; i++) {
                 title = cards[i].querySelector(".card-title");
                 if (title.innerText.toUpperCase().indexOf(filter) > -1) {
                     cards[i].style.display = "";
                 } else {
-                    cards[i].style.display = "none";
+                    cards[i].style.setProperty('display', 'none', 'important');
                 }
             }
         }

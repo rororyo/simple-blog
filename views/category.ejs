@@ -26,7 +26,7 @@
         </div>
 
         <!-- Category List -->
-        <ul class="list-group mt-4">
+        <ul class="list-group mt-4" id="searchResults">
             <% postCategories.forEach(category => { %>
             <li class="list-group-item d-flex justify-content-between align-items-center">
                 <a href="/category/<%= category.category_name %>">
@@ -57,7 +57,7 @@
                 if (a.innerHTML.toUpperCase().indexOf(filter) > -1) {
                     li[i].style.display = "";
                 } else {
-                    li[i].style.display = "none";
+                    li[i].style.setProperty('display', 'none', 'important');
                 }
             }
         }

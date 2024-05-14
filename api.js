@@ -64,7 +64,7 @@ app.get("/posts-count", async (req, res) => {
 })
 
 app.get("/posts/:id", async (req, res) => {
-  const client = req.dbClient;  // Access the database client from req object
+  const client = req.dbClient;  
   try {
     const result = await client.query(
       "select p.id,c.category_name,p.title,p.picture,p.post_content,p.author,p.date_created from posts p join category c on c.id=p.category_id where p.id=$1",
