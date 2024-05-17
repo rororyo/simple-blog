@@ -4,6 +4,7 @@ This is a simple blog application where users can see blog posts made by admin. 
 ## Table of Contents
 - [Description](#description)
 - [Features](#features)
+-  [Tech stack](#Tech-stack)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Screenshots](#screenshots)
@@ -16,6 +17,10 @@ Users can see the 5 latests page
 Users can see all categories, this also enables users to view older posts groupped by category
 ### Admin dashboard
 In the admin dashboard,admins can manage users including changing roles,emails, password, etc. Admins can also manage posts(basic CRUD).
+## Tech stack
+1. EJS (Embedded JavaScript): Utilized for server-side rendering to dynamically generate HTML content.
+2. Express.js: A fast and minimalist web framework for Node.js, used to handle API calls and route management.
+3. PostgreSQL: A powerful, open-source relational database system used for managing and storing blog data.
 ## Installation 
 1. Clone the repository:
    ```bash
@@ -28,7 +33,7 @@ In the admin dashboard,admins can manage users including changing roles,emails, 
     npm install
     ```
 3. Modify the `.env` file so it matches your pgadmin options
-4. Run the `posts.sql` file in the pgadmin query
+4. Restore the `posts.sql` db export
 5. Run the application: Using 2 terminals 
    ```bash
    Terminal 1 : node ./index.js
